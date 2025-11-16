@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Model files
+model/*.pkl
+
+# Virtual env
+venv/
+.env/
+
+# VS Code
+.vscode/
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+
+# Cache
+*.cache/

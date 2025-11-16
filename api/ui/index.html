@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Churn Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Customer Churn Prediction</h2>
+
+<div class="card">
+    <label>Tenure (months)</label>
+    <input id="tenure" type="number" value="5">
+
+    <label>Monthly Charges</label>
+    <input id="monthly" type="number" value="89.65">
+
+    <label>Total Charges</label>
+    <input id="total" type="number" value="450">
+
+    <label>Contract Type</label>
+    <select id="contract">
+        <option>Month-to-month</option>
+        <option>One year</option>
+        <option>Two year</option>
+    </select>
+
+    <label>Payment Method</label>
+    <select id="payment">
+        <option>Electronic check</option>
+        <option>Mailed check</option>
+        <option>Bank transfer (automatic)</option>
+        <option>Credit card (automatic)</option>
+    </select>
+
+    <button onclick="predict()">Predict Churn</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    async function predict() {
+        const payload = {
+            tenure: parseInt(document.getElementById('tenure').value),
+            MonthlyCharges: parseFloat(document.getElementById('monthly').value),
+            TotalCharges: parseFloat(document.getElementById('total').value),
+            gender: "Male",
+            SeniorCitizen: 0,
+            Partner: "No",
+            Dependents: "No",
+            PhoneService: "Yes",
+            MultipleLines: "No",
+            InternetService: "Fiber optic",
+            OnlineSecurity: "No",
+            OnlineBackup: "No",
+            DeviceProtection: "No",
+            TechSupport: "No",
+            StreamingTV: "Yes",
+            StreamingMovies: "Yes",
+            Contract: document.getElementById('contract').value,
+            PaperlessBilling: "Yes",
+            PaymentMethod: document.getElementById('payment').value
+        };
+
+        const res = await fetch("http://localhost:8000/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        document.getElementById("result").innerHTML =
+            "Churn Probability: <br><span style='color:red; font-size:22px'>" +
+            data.churn_probability.toFixed(2) +
+            "</span>";
+    }
+</script>
+
+</body>
+</html>

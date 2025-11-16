@@ -1,0 +1,14 @@
+# Base image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+RUN pip install --no-cache-dir pandas scikit-learn numpy
+
+# Copy Python scripts into container
+COPY train.py preprocess.py ./
+
+# model/ and data/ will be mounted by docker-compose
+CMD ["python", "train.py"]

@@ -1,0 +1,21 @@
+
+services:
+  train:
+    build:
+      context: ./training
+      dockerfile: Dockerfile.train
+    volumes:
+      - ./data:/app/data
+      - ./model:/app/model
+    command: ["python", "train.py"]
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.api
+    volumes:
+      - ./model:/app/model
+    ports:
+      - "8000:8000"
+    depends_on:
+      - train
