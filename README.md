@@ -44,41 +44,62 @@ Features:
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Architecture
+
 
 ```
-customer_churn_mlops/
-│── api/
-
-│   ├── app.py               # FastAPI app + UI + prediction endpoint
-
-│   ├── index.html           # Frontend UI
-
-│── training/
-
-│   ├── train.py             # Model training script
-
-
-│   ├── preprocess.py        # Preprocessing pipeline
-
-│── data/
-
-│   ├── telco_churn.csv      # Dataset
-
-│── model/
-
-│   ├── model.pkl            # Trained ML model
-
-│   ├── preprocess.pkl       # Preprocessing pipeline
-
-│── Dockerfile.api           # Dockerfile for API
-
-│── Dockerfile.train         # Dockerfile for training
-
-│── docker-compose.yml       # One-command run
-
-│── README.md                # Documentation
+                             ┌───────────────────────────┐
+                             │      Telco Churn CSV      │
+                             │   (data/telco_churn.csv)   │
+                             └──────────────┬────────────┘
+                                            │
+                         (used during train │ container)
+                                            │
+                    ┌───────────────────────▼───────────────────────┐
+                    │              TRAIN CONTAINER                   │
+                    │         (Dockerfile.train + train.py)          │
+                    │                                                │
+                    │  • Loads raw dataset                           │
+                    │  • Preprocessing pipeline (preprocess.py)      │
+                    │  • Trains Logistic Regression model            │
+                    │  • Saves:                                      │
+                    │       - model/model.pkl                         │
+                    │       - model/preprocess.pkl                    │
+                    └───────────────┬───────────────────────────────┘
+                                    │ (shared volume)
+                                    │
+                             ┌──────▼──────────────────────┐
+                             │     MODEL ARTIFACT STORE     │
+                             │           /model/            │
+                             │   model.pkl + preprocess.pkl │
+                             └──────────────┬───────────────┘
+                                            │ (loaded into API)
+                                            │
+                    ┌───────────────────────▼───────────────────────┐
+                    │                API CONTAINER                   │
+                    │      (Dockerfile.api + FastAPI app.py)         │
+                    │                                                │
+                    │  Endpoints:                                    │
+                    │   • `/predict` → Churn Probability             │
+                    │   • `/health`  → API & Model status            │
+                    │   • `/version` → Model & API metadata          │
+                    │   • `/` serves frontend (index.html)           │
+                    │                                                │
+                    │  Loads model + preprocessor at startup         │
+                    └───────────────┬───────────────────────────────┘
+                                    │
+                            Serves Frontend UI
+                                    │
+                             ┌──────▼───────────────────┐
+                             │     HTML + JS FRONTEND    │
+                             │    (api/index.html file)  │
+                             │                           │
+                             │   • User enters inputs     │
+                             │   • Calls `/predict` API   │
+                             │   • Displays probability   │
+                             └────────────────────────────┘
 ```
+
 
 ---
 
